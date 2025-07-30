@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use DeepCopy\Filter\Filter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
@@ -13,7 +15,7 @@ class LoginController extends Controller
      */
     public function index()
     {
-        //
+        return view('auth.login');
     }
 
     /**
@@ -27,9 +29,45 @@ class LoginController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+   public function login(Request $request)
     {
-        //
+        $credentials = $request->validate([
+            'usermail' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
+        $loginType = filter_var($credentials['usermail'], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        $remember = $request->has('remember');
+
+        if (Auth::attempt([$loginType => $credentials['usermail'], 'password' => $credentials['password']], $remember)) {
+            $request->session()->regenerate();
+
+            $user = Auth::user();
+
+            if ($user->role === 'admin') {
+                return redirect()->route('admin.dashboard');
+            }
+
+            if (!$user->has_set_pin) {
+                return redirect()->route('auth.set-pin')->with('success', 'Please set your transaction PIN.');
+            }
+
+            return redirect()->intended('/dashboard');
+        }
+
+        return back()->withErrors([
+            'usermail' => 'Invalid credentials.',
+        ])->onlyInput('usermail');
+    }
+
+
+    public function logout(Request $request) 
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/login');
     }
 
     /**

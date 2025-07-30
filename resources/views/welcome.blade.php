@@ -1,7 +1,7 @@
 <x-layout>
     <div class="row justify-content-center m-5">
         <div class="col-sm-2 mt-4 text-center">
-            <img class="img-fluid mt-2" src="/assets/images/logo.jpg" alt="" style="width: 50%; height: 80%">
+            <img class="img-fluid mt-2" src="{{ asset('images/logo.jpg') }}" alt="" style="width: 100px; height: 100px">
         </div>
         <div class="row-md-2 text-center">
             <h3 class="text-color fw-bold">Welcome</h3>

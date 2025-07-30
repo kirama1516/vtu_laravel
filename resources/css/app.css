@@ -1,11 +1,122 @@
-@import 'tailwindcss';
+@media (max-width: 600px) {
+    html, body {
+        width: 100%;
+        height: auto;
+        overflow-x: hidden;
+        overflow-y: auto;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .container,
+    .container-fluid {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    .text-center, .text-start, .text-end {
+        text-align: center !important;
+    }
+    
+    .d-flex {
+        flex-wrap: wrap;
+        /* justify-content: center; */
+    }
+}
+p{
+    font-size: 20px;
+}
+.text-color {
+    color: darkblue;
+}
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+.btn-register {
+    background-color: transparent;
+    color: darkblue;
+    border: 2px solid rgb(2, 2, 80); 
+}
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+.btn-login {
+    background-color: transparent;
+    color: darkblue;
+    border: 2px solid rgb(2, 2, 80); 
+}
+
+.w-45 {
+  width: 45%;
+}
+
+.menu {
+    background-color: darkblue;
+    color: white;
+}
+
+p {
+    font-weight: 600;
+    font-size: 20px;
+    margin-top: 20px;
+}
+
+.fixed-bottom a {
+  color: #0d0d0d;
+  text-decoration: none;
+}
+
+.w-45 {
+  width: 45%;
+}
+
+.fixed-bottom a {
+  color: #0d0d0d;
+  text-decoration: none;
+}
+.footer {
+  background-color: rgba(226, 226, 226, 0.89);
+  border-radius: 10px;
+}
+#accountdetails {
+    background-color: rgba(226, 226, 226, 0.89);
+    border-radius: 15px;
+    border: 1px solid #222;
+}
+
+#services {
+    background-color: rgba(226, 226, 226, 0.89);
+    font-weight: 500;
+    font-size: 20px;
+}
+
+#services img {
+    background-color: rgb(7, 7, 148);
+    border-radius: 10px;
+    padding: 5px;
+    margin: 5px;
+}
+.btn-color {
+    background-color: rgb(7, 7, 148);
+    color: white;
+}
+form {
+    background-color: #fff;
+    border-radius: 20px;
+    /*box-shadow: 0 4px 8px rgba(0,0,0,0.05);*/
+}
+
+.form-select, .form-control {
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+
+button.btn:hover {
+    background-color: #000066;
+}
+.error-message {
+    color: red;
+    font-size: 14px;
+    display: none;
 }
