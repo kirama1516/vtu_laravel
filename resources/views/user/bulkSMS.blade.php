@@ -1,72 +1,62 @@
 <x-app-layout>
-<div class="container-lg">
+   <div class="container-lg">
         <div class="row justify-content-center">
             <div class="col-lg-6 text-center">
-                <h3 class="text-dark m-4 fw-bold">Bulk SMS</h3>
-                <?php if (isset($message)) { echo $message; } ?>
-                <form action="bulkSMS.php" method="post" class="container" style="max-width: 500px;">
-                    <input type="hidden" name="serviceID" value="<?= isset($service['id']) ? htmlspecialchars($service['id']) : ''; ?>" id="serviceID">
-                    <input type="hidden" name="packageID" value="<?= isset($package['id']) ? htmlspecialchars($package['id']) : ''; ?>" id="packageID">
-                    <div class="mb-3">
-                        <input type="text" name="sender" id="sender" class="form-control border-dark py-3 rounded-5" placeholder="Enter sender" required>
+                <h3 class="text-dark m-4 fw-bold">Buy Airtime</h3>
+                @if ($service->status !== 'active')
+                    <div class="alert alert-danger d-flex align-items-center justify-content-center rounded-pill py-3 shadow-sm">
+                        <i class="bi bi-exclamation-triangle-fill me-2" style="font-size: 1.5rem;"></i>
+                        <span class="fw-semibold">Airtime is no longer available at this moment. Please check back later.</span>
                     </div>
-                    <div class="mb-3">
-                        <textarea name="smsMessage" id="smsMessage" class="form-control border-dark rounded-5" rows="4" placeholder="Enter your message here..." required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <textarea name="bulkSMS" id="bulkSMS" class="form-control border-dark rounded-5" rows="4" placeholder="Enter phone numbers, separated by commas (e.g., 1234567890, 0987654321)" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <input type="password" name="pin" id="pin" class="form-control border-dark py-3 rounded-5" placeholder="Enter PIN" maxlength="4" required>
-                    </div>
-                    <input type="hidden" name="quantity" id="quantity" class="form-control" readonly>
-                    <input type="hidden" name="amount" id="amount" class="form-control" readonly>
-                    <input type="hidden" name="total" id="total" class="form-control" readonly>
-                    <button type="submit" name="sendSMS" class="btn btn-send col-sm-3 rounded-5">Send - Pay:N<span id="total-cost"></span></button>
-                </form>
-            </div>
-        </div>
+                    <a href="{{ route('user.dashboard')}}" class="btn btn-outline-dark rounded-pill px-4 fw-semibold mt-3">
+                        <i class="bi bi-box-arrow-left me-3" style="font-size: 1.5rem;"></i> Back to Dashboard
+                    </a>
+                @else
+                    <form action="{{ route('user.buyAirtime') }}" method="post" onsubmit="return validateForm()" class="p-4">
+                    @csrf
+                        <div class="mb-4">
+                            <select name="biller_id" id="biller_id" class="form-select py-3 rounded-pill" required>
+                                <option value="">Select network</option>
+                                @foreach ($billers as $biller)
+                                    <option value="{{ $biller->id }}">{{ $biller->title }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <input type="text" name="service_id" value="{{ $service->id }}" id="service_id" readonly>
+                        </div>
+                    
+                        <div class="mb-4">
+                            <select name="category_id" id="category_id" class="form-select py-3 rounded-pill" required>
+                                <option value="">Select type</option>
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}">{{ $category->title }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-        <!-- Order History Section -->
-        <div class="row justify-content-center my-5">
-            <div class="col-lg-10">
-                <h3 class="text-color fw-bold">Order History</h3>
-                <?php if (empty($orderHistory)): ?>
-                    <div class="alert alert-info">No orders found.</div>
-                <?php else: ?>
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>S.No.</th>
-                                <!-- <th>Reference</th> -->
-                                <th>Sender</th>
-                                <th>Message</th>
-                                <th>Beneficiary</th>
-                                <th>Service</th>
-                                <th>Package</th>
-                                <th>Status</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            $serialNumber = 1; // Initialize serial number
-                            foreach ($orderHistory as $order): ?>
-                                <tr>
-                                    <td><?= $serialNumber++; ?></td>
-                                    <!-- <td><?= htmlspecialchars($order['reference']) ?></td> -->
-                                    <td><?= htmlspecialchars($order['sender']) ?></td>
-                                    <td><?= htmlspecialchars($order['message']) ?></td>
-                                    <td><?= htmlspecialchars($order['beneficiary']) ?></td>
-                                    <td><?= htmlspecialchars($order['serviceName']) ?></td>
-                                    <td><?= htmlspecialchars($order['packageName']) ?></td>
-                                    <td><?= htmlspecialchars($order['status']) ?></td>
-                                    <td><?= htmlspecialchars($order['created_at']) ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                <?php endif; ?>
+                        <div class="mb-4">
+                            <input type="number" name="price" id="amount" class="form-control py-3 rounded-pill" placeholder="Enter amount" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <input type="number" name="beneficiary" id="phone" class="form-control py-3 rounded-pill" placeholder="Enter phone Number" required">
+                            <span id="phoneError" class="error-message">Invalid phone number (10–11 digits required).</span>
+                        </div>
+
+                        <div class="mb-4">
+                            <input type="password" name="pin" id="pin" class="form-control py-3 rounded-pill" placeholder="Enter Pin" required>
+                        </div>
+                    
+                        <input type="hidden" name="total" id="total">
+                        <input type="hidden" name="quantity" id="quantity">
+                    
+                        <button type="submit" name="buyAirtime" class="btn w-100 py-3 text-white fw-bold rounded-pill" style="background-color: #0a0a7a;">
+                            Buy Now - Pay: ₦<span id="btnTotal">0.00</span>
+                        </button>
+                    </form>
+                @endif
             </div>
         </div>
     </div>

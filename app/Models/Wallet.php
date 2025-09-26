@@ -8,11 +8,17 @@ class Wallet extends Model
 {
     protected $fillable = [
         'user_id',
-        'identifier'
+        'identifier',
+        'mainBalance'
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function transaction()
+    {
+        return $this->belongsTo(Transaction::class);
     }
 }

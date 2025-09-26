@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Laravel</title>
+        <title>M5 Data</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -24,7 +24,7 @@
                     <button class="btn menu me-2" data-bs-toggle="offcanvas" data-bs-target="#sidebar">
                         ☰
                     </button>
-                    <h5 class="fw-semibold mb-0"><span class="text-dark">{{ auth()->user()->username }}</span></h5>
+                    <h5 class="fw-semibold mb-0"><span class="text-dark">{{ Auth::user()->username }}</span></h5>
                 </div>
                 <div class="col-2 d-flex justify-content-end">
                     <div class="dropdown">
@@ -32,13 +32,14 @@
                             <img src="{{ asset("images/profileIcon.png")}}" alt="User" width="40" height="40" class="rounded-circle">
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item text-color" href="profile.php"><i class="bi bi-pencil"></i> Edit Profile</a></li>
-                            <li><a class="dropdown-item text-color" href="settings.php"><i class="bi bi-gear"></i> Settings</a></li>
+                            <li><a class="dropdown-item text-color" href="{{ route('user.profile')}}"><i class="bi bi-pencil"></i> Edit Profile</a></li>
+                            <li><a class="dropdown-item text-color" href="{{ route('user.setting')}}"><i class="bi bi-gear"></i> Settings</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item text-danger" href="{{route('auth.logout')}}" onclick="event.preventDefault();
                             document.getElementById('logout-form').submit();"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
                             <form id="logout-form" action="{{ route('auth.logout')}}" method="POST" style="display: none">
                                 @csrf
+                            </form>
                         </ul>
                     </div>
                 </div>
@@ -54,8 +55,8 @@
             <div class="offcanvas-body">
                 <ul class="list-group">
                     <li class="list-group-item"><a href="{{ route('user.dashboard')}}" class="text-decoration-none text-color"><i class="bi bi-speedometer2" style="color: darkblue; font-size: 1.5rem;"></i> Dashboard</a></li>
-                    <li class="list-group-item"><a href="addMoney.php" class="text-decoration-none text-color"><i class="bi bi-wallet2" style="color: darkblue; font-size: 1.5rem;"></i> Add Money</a></li>
-                    <li class="list-group-item"><a href="wallet.php" class="text-decoration-none text-color"><i class="bi bi-credit-card" style="color: darkblue; font-size: 1.5rem;"></i> Wallet</a></li>
+                    <li class="list-group-item"><a href="{{ route('user.addMoney')}}" class="text-decoration-none text-color"><i class="bi bi-wallet2" style="color: darkblue; font-size: 1.5rem;"></i> Add Money</a></li>
+                    <li class="list-group-item"><a href="{{ route('user.wallet')}}" class="text-decoration-none text-color"><i class="bi bi-credit-card" style="color: darkblue; font-size: 1.5rem;"></i> Wallet</a></li>
 
                     <p class="fw-bold mt-3">Services</p>
                     <li class="list-group-item"><a href="{{ route('user.buyAirtime')}}" class="text-decoration-none text-color"><i class="bi bi-phone" style="color: darkblue; font-size: 1.5rem;"></i> Buy Airtime</a></li>
@@ -66,12 +67,26 @@
                     <li class="list-group-item"><a href="buyExam.php" class="text-decoration-none text-color"><i class="bi bi-pencil-square" style="color: darkblue; font-size: 1.5rem;"></i> Exams</a></li>
 
                     <p class="fw-bold mt-3">History</p>
-                    <li class="list-group-item"><a href="order.php" class="text-decoration-none text-color"><i class="bi bi-cart-check" style="color: darkblue; font-size: 1.5rem;"></i> Orders</a></li>
-                    <li class="list-group-item"><a href="transactions.php" class="text-decoration-none text-color"><i class="bi bi-receipt" style="color: darkblue; font-size: 1.5rem;"></i> Transactions</a></li>
-                    <li class="list-group-item"><a href="payment.php" class="text-decoration-none text-color"><i class="bi bi-cash-stack" style="color: darkblue; font-size: 1.5rem;"></i> Payment</a></li>
+                    <li class="list-group-item"><a href="{{ route('user.order.index')}}" class="text-decoration-none text-color"><i class="bi bi-cart-check" style="color: darkblue; font-size: 1.5rem;"></i> Orders</a></li>
+                    <li class="list-group-item"><a href="{{ route('user.transaction.index')}}" class="text-decoration-none text-color"><i class="bi bi-receipt" style="color: darkblue; font-size: 1.5rem;"></i> Transactions</a></li>
+                    <li class="list-group-item"><a href="{{ route('user.payment')}}" class="text-decoration-none text-color"><i class="bi bi-cash-stack" style="color: darkblue; font-size: 1.5rem;"></i> Payment</a></li>
                 </ul>
             </div>
         </div>
+
+        @if (session('message'))
+            <div class="mx-3 alert alert-success">
+                {{ session('message') }}
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="mx-3 alert alert-danger">
+                    @foreach ($errors->all() as $error)
+                        {{ $error }}
+                    @endforeach
+            </div>
+        @endif
 
         {{ $slot }}
         

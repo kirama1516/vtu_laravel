@@ -8,8 +8,10 @@ class DashboardController extends Controller
 {
     public function showDashboard()
     {
-        $admin = Auth::user();
+        $user = Auth::user();
 
-        return view('user.dashboard', compact('user'));
+        $wallet = $user->wallet;
+
+        return view('user.dashboard', compact('user', 'wallet'));
     }
 }

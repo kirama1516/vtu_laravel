@@ -12,7 +12,7 @@
                 <a href="{{ route('auth.register') }}" class="btn btn-create col-sm-3 m-3">Create Account</a>
             </div>
             <div class="row-md-3">
-                <a href="{{ route('auth.login')}}" class="btn btn-login col-sm-3">Login</a>
+                <a href="{{ route('login')}}" class="btn btn-login col-sm-3">Login</a>
             </div>
         </div>
         <div class="row text-color m-3 text-center">

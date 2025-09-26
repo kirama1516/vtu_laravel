@@ -16,7 +16,7 @@
                             </ul>
                         </div>  
                     @endif
-                    <form action="{{ route('auth.register')}}" method="post" enctype="multipart/form-data" class="container" style="max-width: 500px;">
+                    <form action="{{ route('auth.registerPost')}}" method="post" enctype="multipart/form-data" class="container" style="max-width: 500px;">
                         @csrf
                         <div class="input-group mb-3">
                             <input type="text" name="name" value="{{ old('name') }}" class="form-control py-3 rounded-start-3 borders border-end-0" id="firstname" placeholder="Full name">
@@ -66,7 +66,7 @@
 
                         <button type="submit" name="signup" class="btn btn-register btn-outline-primary col-sm-3 m-3">Register</button>
 
-                        <p class="text-color">Already have account? <a href="{{ route('auth.login')}}" class="fw-bold text-color text-decoration-none">Login</a></p>
+                        <p class="text-color">Already have account? <a href="{{ route('auth.loginPost')}}" class="fw-bold text-color text-decoration-none">Login</a></p>
                     </form>
                 </div>
             </div>

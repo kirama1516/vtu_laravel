@@ -35,6 +35,12 @@ p{
     color: darkblue;
 }
 
+.btn-button {
+    background-color: darkblue;
+    color: white;
+    /* border: 2px solid rgb(2, 2, 80);  */
+}
+
 .btn-register {
     background-color: transparent;
     color: darkblue;
@@ -113,7 +119,9 @@ form {
 }
 
 button.btn:hover {
-    background-color: #000066;
+    background-color: rgb(14, 39, 129);
+    color: white;
+
 }
 .error-message {
     color: red;

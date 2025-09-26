@@ -4,15 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
 
 class TransactionController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        //
+    public function transactionIndex()
+    {   
+        $user = Auth::user();
+
+        $transactions = Transaction::with(['user', 'wallet', 'order'])
+            ->where('user_id', $user->id)
+            ->orderBy('id', 'desc')
+            ->get();
+        return view('user.transaction.index', compact('transactions'));
     }
 
     /**

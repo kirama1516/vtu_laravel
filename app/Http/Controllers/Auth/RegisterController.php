@@ -29,6 +29,8 @@ class RegisterController extends Controller
         //
     }
 
+
+
     /**
      * Store a newly created resource in storage.
      */
@@ -47,43 +49,45 @@ class RegisterController extends Controller
         //     return redirect()->back()->withErrors(['pin' => 'Pin is required.']);
         // }
 
-    $user = User::create([
-        'name' => $validated['name'],
-        'email' => $validated['email'],
-        'username' => $validated['username'],
-        'phone' => $validated['phone'],
-        'password' => Hash::make($validated['password']),
-    ]);
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'username' => $validated['username'],
+            'phone' => $validated['phone'],
+            'password' => Hash::make($validated['password']),
+        ]);
 
     
-    Wallet::create([
-        'user_id' => $user->id,
-        'mainBalance' => 0.00,
-        'identifier' => 'WALLET' . mt_rand(10000000, 99999999),
-        'currency' => 'NGN',
-        'status' => 'active'
-    ]);
+        Wallet::create([
+            'user_id' => $user->id,
+            'mainBalance' => 0.00,
+            'identifier' => 'WALLET' . mt_rand(10000000, 99999999),
+            'currency' => 'NGN',
+            'status' => 'active'
+        ]);
 
-    $monnify = new MonnifyService();
+    
 
-    try {
-        $response = $monnify->createVirtualAccount($user);
-        if (isset($response['responseCode']) && $response['responseCode'] == "0" && isset($response['responseBody'])) {
-            if (isset($response['responseBody']['accounts']) && is_array($response['responseBody']['accounts'])) {
-                $accounts = $response['responseBody']['accounts'];
-                foreach($accounts as $account) {
-                    $user->accNumber = $account['accountNumber'];
-                    $user->accName = $account['accountName'];
-                    $user->bankName = $account['bankName'];
-                    $user->save();
+        $monnify = new MonnifyService();
+
+        try {
+            $response = $monnify->createVirtualAccount($user);
+            if (isset($response['responseCode']) && $response['responseCode'] == "0" && isset($response['responseBody'])) {
+                if (isset($response['responseBody']['accounts']) && is_array($response['responseBody']['accounts'])) {
+                    $accounts = $response['responseBody']['accounts'];
+                    foreach($accounts as $account) {
+                        $user->accNumber = $account['accountNumber'];
+                        $user->accName = $account['accountName'];
+                        $user->bankName = $account['bankName'];
+                        $user->save();
+                    }
                 }
             }
+        } catch(\Exception $e) {
+            \Log::error("Monnify error: " . $e->getMessage());
         }
-    } catch(\Exception $e) {
-        \Log::error("Monnify error: " . $e->getMessage());
-    }
 
-    Auth::login($user);
+        Auth::login($user);
         return redirect()->route('auth.set-pin')->with('success', 'Registration successful. Please login');
     }
 

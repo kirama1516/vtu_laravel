@@ -11,7 +11,7 @@
                     </ul>
                 </div>  
             @endif
-            <form action="{{ route('auth.set-pin')}}" method="POST" class="container" style="max-width: 500px;">
+            <form action="{{ route('auth.set-pinPost')}}" method="POST" class="container" style="max-width: 500px;">
                 @csrf
                 <!-- PIN Input -->
                 <div class="input-group mb-4">

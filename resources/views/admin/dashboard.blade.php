@@ -5,7 +5,7 @@
             <div class="col-12 col-sm-6 col-md-3 p-2">
                 <div class="card p-3 shadow-sm text-center">
                     <h6>Total Users</h6>
-                    {{-- <h3><?php echo $totalUsers; ?></h3> --}}
+                    <h3>{{ $totalUsers}}</h3>
                 </div>
             </div>
             <div class="col-12 col-sm-6 col-md-3 p-2">
@@ -36,12 +36,12 @@
                 </a>
             </div>
             <div class="col-12 col-sm-4 mb-2">
-                <a href="services.php" class="btn btn-success w-100 p-3">
+                <a href="{{ route('service.index')}}" class="btn btn-success w-100 p-3">
                     <i class="bi bi-gear"></i> Manage Services
                 </a>
             </div>
             <div class="col-12 col-sm-4 mb-2">
-                <a href="users-log.php" class="btn btn-warning w-100 p-3">
+                <a href="{{ route('users_log.index') }}" class="btn btn-warning w-100 p-3">
                     <i class="bi bi-file-text"></i> View Logs
                 </a>
             </div>

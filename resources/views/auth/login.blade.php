@@ -16,7 +16,7 @@
                         </div>
                     </div>  
                 @endif
-                <form action="{{ route('auth.login')}}" method="post" class="container" style="max-width: 500px;">
+                <form action="{{ route('auth.loginPost')}}" method="post" class="container" style="max-width: 500px;">
                     @csrf
                     <div class="input-group mb-4">
                         <input type="text" name="usermail" value="{{ old('usermail') }}" class="form-control text-decoration-none py-3 rounded-start-3 borders border-end-0" id="email" placeholder="Email/Username" required autofocus>

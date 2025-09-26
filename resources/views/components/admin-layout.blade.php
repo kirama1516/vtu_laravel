@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Laravel</title>
+        <title>Admin</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -24,7 +24,7 @@
                     <button class="btn menu me-2" data-bs-toggle="offcanvas" data-bs-target="#sidebar">
                         ☰
                     </button>
-                    <h5 class="fw-semibold mb-0"><span class="text-dark">{{ Auth()->user()->username }}</span></h5>
+                    <h5 class="fw-semibold mb-0"><span class="text-dark">{{ Auth::user()->username }}</span></h5>
                 </div>
                 <div class="col-2 d-flex justify-content-end">
                     <div class="dropdown">
@@ -39,6 +39,7 @@
                             document.getElementById('logout-form').submit();"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
                             <form id="logout-form" action="{{ route('auth.logout')}}" method="POST" style="display: none">
                                 @csrf
+                            </form>
                         </ul>
                     </div>
                 </div>
@@ -53,25 +54,58 @@
             </div>
             <div class="offcanvas-body">
                 <ul class="list-group">
-                    <li class="list-group-item"><a href="{{ route('admin.dashboard')}}" class="text-decoration-none text-color"><i class="bi bi-speedometer2" style="color: darkblue; font-size: 1.5rem;"></i> Dashboard</a></li>
-                    <li class="list-group-item"><a href="{{ route('admin.service')}}" class="text-decoration-none text-color"><i class="bi bi-wallet2" style="color: darkblue; font-size: 1.5rem;"></i> Service</a></li>
-                    <li class="list-group-item"><a href="wallet.php" class="text-decoration-none text-color"><i class="bi bi-credit-card" style="color: darkblue; font-size: 1.5rem;"></i> Wallet</a></li>
-
-                    <p class="fw-bold mt-3">Services</p>
-                    <li class="list-group-item"><a href="{{ route('user.buyAirtime')}}" class="text-decoration-none text-color"><i class="bi bi-phone" style="color: darkblue; font-size: 1.5rem;"></i> Buy Airtime</a></li>
-                    <li class="list-group-item"><a href="buyData.php" class="text-decoration-none text-color"><i class="bi bi-wifi" style="color: darkblue; font-size: 1.5rem;"></i> Buy Data</a></li>
-                    <li class="list-group-item"><a href="bulkSMS.php" class="text-decoration-none text-color"><i class="bi bi-chat-dots" style="color: darkblue; font-size: 1.5rem;"></i> Bulk SMS</a></li>
-                    <li class="list-group-item"><a href="buyCable.php" class="text-decoration-none text-color"><i class="bi bi-tv"></i> Buy Cable</a></li>
-                    <li class="list-group-item"><a href="buyElectricity.php" class="text-decoration-none text-color"><i class="bi bi-lightning-charge" style="color: darkblue; font-size: 1.5rem;"></i> Buy Electricity</a></li>
-                    <li class="list-group-item"><a href="buyExam.php" class="text-decoration-none text-color"><i class="bi bi-pencil-square" style="color: darkblue; font-size: 1.5rem;"></i> Exams</a></li>
-
-                    <p class="fw-bold mt-3">History</p>
-                    <li class="list-group-item"><a href="order.php" class="text-decoration-none text-color"><i class="bi bi-cart-check" style="color: darkblue; font-size: 1.5rem;"></i> Orders</a></li>
-                    <li class="list-group-item"><a href="transactions.php" class="text-decoration-none text-color"><i class="bi bi-receipt" style="color: darkblue; font-size: 1.5rem;"></i> Transactions</a></li>
-                    <li class="list-group-item"><a href="payment.php" class="text-decoration-none text-color"><i class="bi bi-cash-stack" style="color: darkblue; font-size: 1.5rem;"></i> Payment</a></li>
+                    <li class="list-group-item">
+                        <a href="{{ route('admin.dashboard') }}" class="text-color text-decoration-none"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                    </li>
+                    <!-- <li class="list-group-item">
+                        <a href="energy-customer.php" class="text-color text-decoration-none"><i class="bi bi-people"></i> Energy Customer</a>
+                    </li> -->
+                    <li class="list-group-item">
+                        <a href="{{ route('service.index') }}" class="text-color text-decoration-none"><i class="bi bi-gear"></i> Services</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="order.php" class="text-color text-decoration-none"><i class="bi bi-cart-check"></i> Order</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="{{ route('biller.index') }}" class="text-color text-decoration-none"><i class="bi bi-receipt"></i> Biller</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="{{ route('package.index') }}" class="text-color text-decoration-none"><i class="bi bi-box"></i> Package</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="update-password.php" class="text-color text-decoration-none"><i class="bi bi-key"></i> Update Password</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="{{ route('category.index') }}" class="text-color text-decoration-none"><i class="bi bi-tags"></i> Category</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="annoucement.php" class="text-color text-decoration-none"><i class="bi bi-megaphone"></i> Announcement</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="transactions.php" class="text-color text-decoration-none"><i class="bi bi-chat-dots"></i> Transaction</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="{{ route('users_log.index') }}" class="text-color text-decoration-none"><i class="bi bi-list-check"></i> Users Log</a>
+                    </li>
                 </ul>
             </div>
         </div>
+
+       @if (session('message'))
+            <div class="mx-3 alert alert-success">
+                {{ session('message') }}
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="mx-3 alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
         {{ $slot }}
         

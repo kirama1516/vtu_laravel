@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Biller;
+use App\Models\Category;
 use App\Models\Package;
+use App\Models\Service;
 use Illuminate\Http\Request;
 
 class PackageController extends Controller
@@ -12,7 +15,16 @@ class PackageController extends Controller
      */
     public function index()
     {
-        //
+        // $services = Service::all();
+        $services = Service::where('status', 'active')->get();
+        $billers = Biller::where('status', 'active')->get();
+        $categories = Category::where('status', 'active')->get();
+        
+        $packages = Package::query()
+        ->where('user_id', request()->user()->id)
+        ->orderBy('created_at', 'desc')
+        ->paginate();
+        return view('admin.package.index', ['packages' => $packages, 'categories' => $categories, 'billers' => $billers, 'services' => $services]);
     }
 
     /**
@@ -28,7 +40,23 @@ class PackageController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'title' => ['required', 'string'],
+            'service_id' => ['required', 'integer'],
+            'biller_id' => ['required', 'integer'],
+            'category_id' => ['nullable', 'integer'],
+            'api_code' => ['nullable', 'string'],
+            'size' => ['nullable', 'string'],
+            'validatity' => ['nullable', 'string'],
+            'cost' => ['required', 'regex:/^\d+(\.\d{1,2})?$/'],
+            'price' => ['required', 'regex:/^\d+(\.\d{1,2})?$/'],
+            'status' => ['required', 'string']
+        ]);
+        
+        $data['user_id'] = $request->user()->id;
+        $package = Package::create($data);
+       
+        return to_route('package.index', $package)->with('message', 'Package was created');
     }
 
     /**
@@ -36,7 +64,7 @@ class PackageController extends Controller
      */
     public function show(Package $package)
     {
-        //
+        return view('admin.package.show', ['package' => $package]);
     }
 
     /**
@@ -44,7 +72,7 @@ class PackageController extends Controller
      */
     public function edit(Package $package)
     {
-        //
+        return view('admin.package.show', ['package' => $package]);
     }
 
     /**
@@ -52,7 +80,19 @@ class PackageController extends Controller
      */
     public function update(Request $request, Package $package)
     {
-        //
+        $data = $request->validate([
+            'title' => ['required', 'string'],
+            'api_code' => ['nullable', 'string'],
+            'size' => ['nullable', 'string'],
+            'validatity' => ['nullable', 'string'],
+            'cost' => ['required', 'regex:/^\d+(\.\d{1,2})?$/'],
+            'price' => ['required', 'regex:/^\d+(\.\d{1,2})?$/'],
+            'status' => ['nullable', 'string']
+        ]);
+
+        $package->update($data);
+        
+        return to_route('package.index', $package)->with('message', 'Package was updated');
     }
 
     /**
@@ -60,6 +100,8 @@ class PackageController extends Controller
      */
     public function destroy(Package $package)
     {
-        //
+        $package->delete();
+        
+        return to_route('package.index')->with('message', 'Package was deleted');
     }
 }

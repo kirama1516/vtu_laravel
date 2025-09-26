@@ -1,340 +1,173 @@
-  // document.getElementById("price").value = ;
-$(document).ready(function() {
-        // Listen for changes in the Category Dropdown
-        $("#billerID").change(function() {
-        var billerID = $(this).val(); // Get the selected biller ID
+document.addEventListener("DOMContentLoaded", () => {
+    // ✅ Toggle Balance
+    const balanceText = document.getElementById("balance");
+    const toggleButton = document.getElementById("toggleBalance");
+    const toggleIcon = document.getElementById("toggleIcon");
+
+    if (balanceText && toggleButton && toggleIcon) {
+        let isShow = true;
+        const actualBalance = "******";
+        const formattedBalance = balanceText.textContent.replace("₦", "").trim();
+
+        toggleButton.addEventListener("click", function () {
+            if (isShow) {
+                balanceText.textContent = actualBalance;
+                toggleIcon.src = "/images/showIcon.png";
+            } else {
+                balanceText.textContent = "₦" + formattedBalance;
+                toggleIcon.src = "/images/hideIcon.png";
+            }
+            isShow = !isShow;
         });
-    // Listen for changes in the Category Dropdown
-    $("#categoryID").change(function() {
-        var categoryID = $(this).val(); // Get the selected category ID
-        var billerID = $("#billerID").val(); // Get the selected biller ID again
+    }
 
-        // Clear the Package Dropdown
-        $("#packageID").html('<option value="">Select a package</option>');
+    // ✅ Category Toggle Switch (No jQuery)
+    document.querySelectorAll(".toggle-switch").forEach(toggle => {
+        toggle.addEventListener("change", function () {
+            let categoryID = this.dataset.id;
+            let column = this.dataset.column;
+            let status = this.checked ? 1 : 0;
 
-        if (billerID && categoryID) {
-            // Fetch packages for the selected category
-            $.ajax({
-                url: 'load-package.php',
-                type: 'GET',
-                data: {billerID: billerID, categoryID: categoryID},
-                success: function(response) {
-                    $("#packageID").html(response); // Populate the Package Dropdown
+            fetch("{{ route('category.updateStatus') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
                 },
-                error: function(xhr, status, error) {
-                    console.error("Error fetching packages: " + error);
-                }
-            });
+                body: JSON.stringify({
+                    id: categoryID,
+                    column: column,
+                    status: status
+                })
+            })
+            .then(res => res.json())
+            .then(data => console.log(data.message))
+            .catch(err => console.error("Error:", err));
+        });
+    });
+
+    // ✅ Airtime Total Calculator
+    function calculateTotalCost() {
+        const amountInput = document.getElementById("amount");
+        const totalInput = document.getElementById("total");
+        const quantityInput = document.getElementById("quantity");
+        const btnTotal = document.getElementById("btnTotal");
+
+        if (!amountInput || !totalInput || !quantityInput || !btnTotal) return;
+
+        const amount = parseFloat(amountInput.value) || 0;
+        const discount = 2; // 2% discount
+        const totalCost = amount * (1 - discount / 100);
+
+        totalInput.value = totalCost.toFixed(2);
+        quantityInput.value = 1; // Airtime always 1
+        btnTotal.textContent = totalCost.toFixed(2); // Update button text
+    }
+
+    // ✅ Validate phone number
+    function validatePhoneNumber() {
+        const phoneInput = document.getElementById("phone");
+        const phoneError = document.getElementById("phoneError");
+        if (!phoneInput || !phoneError) return true;
+
+        const phoneNumber = phoneInput.value.trim();
+        const phoneRegex = /^[0-9]{10,11}$/; // Only 10–11 digits
+
+        if (!phoneRegex.test(phoneNumber)) {
+            phoneError.style.display = "block";
+            phoneInput.classList.add("is-invalid");
+            phoneInput.classList.remove("is-valid");
+            return false;
+        } else {
+            phoneError.style.display = "none";
+            phoneInput.classList.remove("is-invalid");
+            phoneInput.classList.add("is-valid");
+            return true;
         }
-    });
+    }
 
-    $("#packageID").change(function() {
-        var packageID = $("#packageID").val(); // Get the selected package ID
+    // ✅ Form Validation
+    function validateForm() {
+        return validatePhoneNumber();
+    }
 
-        // Clear the amount input
-        $("#amount").val(''); // Clear the amount input
+    // ✅ Attach listeners
+    const amountInput = document.getElementById("amount");
+    const phoneInput = document.getElementById("phone");
+    const form = document.getElementById("airtimeForm"); // make sure form has id="airtimeForm"
 
-        if (packageID) {
-            // Fetch packages for the selected category
-            $.ajax({
-                url: 'load-amount.php',
-                type: 'GET',
-                data: {packageID: packageID},
-                success: function(response) {
-                    console.log(response);
-                    
-                    // Populate the amount input
-                    $("#amount").val(response); // Set the amount input value
-                },
-                error: function(xhr, status, error) {
-                    console.error("Error fetching packages: " + error);
-                }
-            });
-        }
-    });
+    if (amountInput) {
+        amountInput.addEventListener("input", calculateTotalCost);
+    }
 
-    // Calculate total cost when PIN input is focused
-    $("#pin").on("focus", function() {
-        calculateTotalCost();
-    });
+    if (phoneInput) {
+        phoneInput.addEventListener("input", validatePhoneNumber);
+    }
 
-    // Calculate total cost when package or amount changes
-$("#packageID, #amount").change(function() {     
-        calculateTotalCost();
-    });
-    
+    if (form) {
+        form.addEventListener("submit", function (e) {
+            if (!validateForm()) {
+                e.preventDefault();
+            }
+        });
+    }
 });
-    // Function to calculate total cost
+
+$(document).ready(function() {
+    // Load Categories when Biller changes
+    $("#biller_id").change(function() {
+        let biller_id = $(this).val();
+        $("#category_id").html('<option value="">Loading...</option>');
+        $("#package_id").html('<option value="">Select Package</option>');
+        $("#amount").val('');
+
+        if (biller_id) {
+            $.get("{{ route('categories.load') }}", { biller_id }, function(response) {
+                let options = '<option value="">Select Category</option>';
+                response.forEach(cat => {
+                    options += `<option value="${cat.id}">${cat.title}</option>`;
+                });
+                $("#category_id").html(options);
+            });
+        }
+    });
+
+    // Load Packages when Category changes
+    $("#category_id").change(function() {
+        let category_id = $(this).val();
+        $("#package_id").html('<option value="">Loading...</option>');
+        $("#amount").val('');
+
+        if (category_id) {
+            $.get("{{ route('packages.load') }}", { category_id }, function(response) {
+                let options = '<option value="">Select Package</option>';
+                response.forEach(pkg => {
+                    options += `<option value="${pkg.id}" data-price="${pkg.price}">${pkg.name}</option>`;
+                });
+                $("#package_id").html(options);
+            });
+        }
+    });
+
+    // Load Amount when Package changes
+    $("#package_id").change(function() {
+        let package_id = $(this).val();
+        $("#amount").val('');
+        $("#total").val(0);
+
+        if (package_id) {
+            $.get("{{ route('package.amount') }}", { package_id }, function(response) {
+                $("#amount").val(response.amount);
+                calculateTotalCost();
+            });
+        }
+    });
+
+    // Calculate total
     function calculateTotalCost() {
         const amount = parseFloat($("#amount").val()) || 0;
-        const packagePrice = parseFloat($("#packageID option:selected").data("price")) || 0;
-        const totalCost = amount + packagePrice;
-        
-        $("#quantity").val(1); // Quantity is always 1 for data
-        $("#total").val(totalCost.toFixed(2));
-        // console.log(totalCost);
-    } 
-
-function validatePhoneNumber() {
-    let phoneInput = document.getElementById("phone");
-    let phoneError = document.getElementById("phoneError");
-    let phoneNumber = phoneInput.value.trim();
-    
-    // Regular expression for 10–11 digit phone numbers
-    let phoneRegex = /^[0-9]{10,11}$/;
-
-    if (!phoneRegex.test(phoneNumber)) {
-        phoneError.style.display = "block";
-        phoneInput.classList.add("is-invalid");
-        return false;
-    } else {
-        phoneError.style.display = "none";
-        phoneInput.classList.remove("is-invalid");
-        phoneInput.classList.add("is-valid");
-        return true;
-    }
-}
-
-function validateForm() {
-    return validatePhoneNumber(); // Prevent form submission if phone number is invalid
-}
-
-// bulkSMS 
-$(document).ready(function() {
-    const costPerSms = 4.0; // Cost per SMS
-
-    // When the PIN input field is focused, calculate and display the total cost
-    $('#pin').on('focus', function() {
-        calculateSmsCost();
-    });
-
-    // Calculate and display the total cost
-    function calculateSmsCost() {
-        const phoneNumbers = $('#bulkSMS').val().split(',').filter(Boolean);
-        const quantity = phoneNumbers.length;
-        const totalCost = quantity * costPerSms;
-
-        $('#quantity').val(quantity);
-        $('#amount').val(totalCost);
-        $('#total').val(totalCost);
-        $('#total-cost').text(totalCost.toFixed(2));
+        $("#total").val(amount.toFixed(2));
     }
 });
 
-// cables
-$(document).ready(function() {
-    // Listen for changes in the Category Dropdown
-    $("#billerID").change(function() {
-        var billerID = $(this).val(); // Get the selected category ID
-
-        // Clear the Package Dropdown
-        $("#packageID").html('<option value="">Select a package</option>');
-
-        if (billerID) {
-            // Fetch packages for the selected category
-            $.ajax({
-                url: 'load-Cpackage.php',
-                type: 'GET',
-                data: { billerID: billerID },
-                success: function(response) {
-                    $("#packageID").html(response); // Populate the Package Dropdown
-                },
-                error: function(xhr, status, error) {
-                    console.error("Error fetching packages: " + error);
-                }
-            });
-        }
-    });
-
-    // Calculate total cost when package changes
-    $("#packageID").change(function() {
-        calculateTotalCost();
-    });
-
-    // Calculate total cost when PIN input is focused
-    $("#pin").on("focus", function() {
-        calculateTotalCost();
-    });
-});
-
-
-// Function to calculate total cost
-function calculateTotalCost() {
-    const packagePrice = parseFloat($("#packageID option:selected").data("price")) || 0;
-    const quantity = 1; // Quantity is always 1 for cable subscription
-    const totalCost = packagePrice * quantity;
-
-    $("#amount").val(packagePrice);
-    $("#quantity").val(quantity);
-    $("#total").val(totalCost);
-    $("#total-cost").text(totalCost.toFixed(2));
-}
-
-// Validate smartcard number
-function validateSmartcardNumber() {
-    const smartcardInput = document.getElementById("uicNumber");
-    const smartcardError = document.getElementById("smartcardError");
-    const smartcardNumber = smartcardInput.value.trim();
-    
-    // Regular expression for 10–16 digit smartcard numbers
-    const smartcardRegex = /^\d{10,16}$/;
-
-    if (!smartcardRegex.test(smartcardNumber)) {
-        smartcardError.style.display = "block";
-        smartcardInput.classList.add("is-invalid");
-        return false;
-    } else {
-        smartcardError.style.display = "none";
-        smartcardInput.classList.remove("is-invalid");
-        smartcardInput.classList.add("is-valid");
-        return true;
-    }
-}
-
-// Validate form before submission
-function validateForm() {
-    return validateSmartcardNumber(); // Prevent form submission if smartcard number is invalid
-}
-
-// Data
-// document.getElementById("price").value = ;
-$(document).ready(function() {
-    // Listen for changes in the Category Dropdown
-    $("#billerID").change(function() {
-        var billerID = $(this).val(); // Get the selected biller ID
-    });
-    // Listen for changes in the Category Dropdown
-    $("#categoryID").change(function() {
-        var categoryID = $(this).val(); // Get the selected category ID
-        var billerID = $("#billerID").val(); // Get the selected biller ID again
-
-        // Clear the Package Dropdown
-        $("#packageID").html('<option value="">Select a package</option>');
-
-        if (billerID && categoryID) {
-            // Fetch packages for the selected category
-            $.ajax({
-            url: 'load-package.php',        
-            type: 'GET',
-            data: {billerID: billerID, categoryID: categoryID},
-            success: function(response) {
-                $("#packageID").html(response); // Populate the Package Dropdown
-            },
-            error: function(xhr, status, error) {
-                console.error("Error fetching packages: " + error);
-            }
-        });
-    }
-});
-
-$("#packageID").change(function() {
-    var packageID = $("#packageID").val(); // Get the selected package ID
-
-    // Clear the amount input
-    $("#amount").val(''); // Clear the amount input
-
-    if (packageID) {
-        // Fetch packages for the selected category
-        $.ajax({
-            url: 'load-amount.php',
-            type: 'GET',
-            data: {packageID: packageID},
-            success: function(response) {
-                console.log(response);
-            // Populate the amount input
-                $("#amount").val(response); // Set the amount input value
-            },
-            error: function(xhr, status, error) {
-                console.error("Error fetching packages: " + error);
-            }
-        });
-    }
-});
-
-// Calculate total cost when PIN input is focused
-$("#pin").on("focus", function() {
-    calculateTotalCost();
-});
-
-// // Calculate total cost when package or amount changes
-// $("#packageID, #amount").change(function() {     
-//     calculateTotalCost();
-// });
-
-});
-// Function to calculate total cost
-function calculateTotalCost() {
-    const amount = parseFloat($("#amount").val()) || 0;
-    const packagePrice = parseFloat($("#packageID option:selected").data("price")) || 0;
-    const totalCost = amount + packagePrice;
-
-    $("#quantity").val(1); // Quantity is always 1 for data
-    $("#total").val(totalCost.toFixed(2));
-    // console.log(totalCost);
-} 
-
-function validatePhoneNumber() {
-    let phoneInput = document.getElementById("phone");
-    let phoneError = document.getElementById("phoneError");
-    let phoneNumber = phoneInput.value.trim();
-
-    // Regular expression for 10–11 digit phone numbers
-    let phoneRegex = /^[0-9]{10,11}$/;
-
-    if (!phoneRegex.test(phoneNumber)) {
-        phoneError.style.display = "block";
-        phoneInput.classList.add("is-invalid");
-        return false;
-    } else {
-        phoneError.style.display = "none";
-        phoneInput.classList.remove("is-invalid");
-        phoneInput.classList.add("is-valid");
-        return true;
-    }
-}
-
-function validateForm() {
-    return validatePhoneNumber(); // Prevent form submission if phone number is invalid
-}
-
-// Exam
- $(document).ready(function() {
-    // Calculate total cost when quantity or amount changes
-    $("#quantity, #amount").on("input", function() {
-        calculateTotalCost();
-    });
-
-    // Calculate total cost when PIN input is focused
-    $("#pin").on("focus", function() {
-        calculateTotalCost();
-    });
-});
-
-// Function to calculate total cost
-function calculateTotalCost() {
-    const quantity = parseFloat($("#quantity").val()) || 0;
-    const amount = parseFloat($("#amount").val()) || 0;
-    const totalCost = quantity * amount;
-
-    $("#price").val(amount);
-    $("#total").val(totalCost);
-    $("#total-cost").text(totalCost.toFixed(2));
-}
-
-// Validate form before submission
-function validateForm() {
-    const quantity = parseFloat($("#quantity").val()) || 0;
-    const amount = parseFloat($("#amount").val()) || 0;
-
-    if (quantity <= 0 || isNaN(quantity)) {
-        alert("Quantity must be a positive number.");
-        return false;
-    }
-
-    if (amount <= 0 || isNaN(amount)) {
-        alert("Amount must be a positive number.");
-        return false;
-    }
-
-    return true; // Allow form submission
-}
+ 
