@@ -42,9 +42,9 @@ class TransactionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Transaction $transaction)
+    public function transactionView(Transaction $transaction)
     {
-        //
+        return view('user.transaction.view', ['transaction' => $transaction]);
     }
 
     /**

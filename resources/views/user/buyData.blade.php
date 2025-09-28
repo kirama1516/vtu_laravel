@@ -2,11 +2,11 @@
    <div class="container-lg">
         <div class="row justify-content-center">
             <div class="col-lg-6 text-center">
-                <h3 class="text-dark m-4 fw-bold">Buy Airtime</h3>
+                <h3 class="text-dark m-4 fw-bold">Buy Data</h3>
                 @if ($service->status !== 'active')
                     <div class="alert alert-danger d-flex align-items-center justify-content-center rounded-pill py-3 shadow-sm">
                         <i class="bi bi-exclamation-triangle-fill me-2" style="font-size: 1.5rem;"></i>
-                        <span class="fw-semibold">Airtime is no longer available at this moment. Please check back later.</span>
+                        <span class="fw-semibold">Data is no longer available at this moment. Please check back later.</span>
                     </div>
                     <a href="{{ route('user.dashboard')}}" class="btn btn-outline-dark rounded-pill px-4 fw-semibold mt-3">
                         <i class="bi bi-box-arrow-left me-3" style="font-size: 1.5rem;"></i> Back to Dashboard
@@ -27,20 +27,19 @@
                             <input type="text" name="service_id" value="{{ $service->id }}" id="service_id" hidden>
                         </div>
 
-                         <div class="mb-4">
-                            <select name="package_id" id="package_id" class="form-select py-3 rounded-pill" required>
-                                <option value="">Select type</option>
-                            </select>
-                        </div>
-                    
                         <div class="mb-4">
                             <select name="category_id" id="category_id" class="form-select py-3 rounded-pill" required>
                                 <option value="">Select type</option>
                             </select>
                         </div>
-
+                        
                         <div class="mb-4">
-                            <input type="number" name="price" id="amount" class="form-control py-3 rounded-pill" placeholder="Enter amount" required>
+                           <select name="package_id" id="package_id" class="form-select py-3 rounded-pill" required>
+                               <option value="">Select type</option>
+                           </select>
+                       </div>
+                        <div class="mb-4">
+                            <input type="number" name="price" id="amount" class="form-control py-3 rounded-pill" placeholder="Enter amount" required readonly>
                         </div>
 
                         <div class="mb-4">

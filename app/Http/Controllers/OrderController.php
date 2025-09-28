@@ -150,11 +150,10 @@ class OrderController extends Controller
 
             return back()->with('message', 'Airtime purchase successful!');
         } else {
-            // Failure → Rollback Wallet
-            $balanceAfter = $wallet->mainBalance;
-            $wallet->mainBalance -= $request->total;
+            $balanceAfter = $wallet->mainBalance;   
+            $wallet->mainBalance += $request->total;
             $wallet->save();
-            $balanceBefore = $wallet->mainBalance;
+            $balanceBefore = $wallet->mainBalance; 
 
             // $wallet->mainBalance = $balanceBefore;
             // $wallet->save();

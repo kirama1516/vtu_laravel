@@ -60,7 +60,7 @@
 
                     <p class="fw-bold mt-3">Services</p>
                     <li class="list-group-item"><a href="{{ route('user.buyAirtime')}}" class="text-decoration-none text-color"><i class="bi bi-phone" style="color: darkblue; font-size: 1.5rem;"></i> Buy Airtime</a></li>
-                    <li class="list-group-item"><a href="buyData.php" class="text-decoration-none text-color"><i class="bi bi-wifi" style="color: darkblue; font-size: 1.5rem;"></i> Buy Data</a></li>
+                    <li class="list-group-item"><a href="{{ route('user.buyData')}}" class="text-decoration-none text-color"><i class="bi bi-wifi" style="color: darkblue; font-size: 1.5rem;"></i> Buy Data</a></li>
                     <li class="list-group-item"><a href="bulkSMS.php" class="text-decoration-none text-color"><i class="bi bi-chat-dots" style="color: darkblue; font-size: 1.5rem;"></i> Bulk SMS</a></li>
                     <li class="list-group-item"><a href="buyCable.php" class="text-decoration-none text-color"><i class="bi bi-tv"></i> Buy Cable</a></li>
                     <li class="list-group-item"><a href="buyElectricity.php" class="text-decoration-none text-color"><i class="bi bi-lightning-charge" style="color: darkblue; font-size: 1.5rem;"></i> Buy Electricity</a></li>
@@ -91,5 +91,65 @@
         {{ $slot }}
         
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            $(document).ready(function() {
+                // Load Categories when Biller changes
+                $("#biller_id").change(function() {
+                    let biller_id = $(this).val();
+                    $("#category_id").html('<option value="">Select type</option>');
+                    $("#package_id").html('<option value="">Select Package</option>');
+                    $("#amount").val('');
+
+                    if (biller_id) {
+                        $.get("{{ route('categories.load') }}", { biller_id }, function(response) {
+                            let options = '<option value="">Select type</option>';
+                            response.forEach(cat => {
+                                options += `<option value="${cat.id}">${cat.title}</option>`;
+                            });
+                            $("#category_id").html(options);
+                            console.log('yawwa');
+                        });
+                    }
+                });
+
+                // Load Packages when Category changes
+                $("#category_id").change(function() {
+                    let category_id = $(this).val();
+                    $("#package_id").html('<option value="">Select type</option>');
+                    $("#amount").val('');
+
+                    if (category_id) {
+                        $.get("{{ route('packages.load') }}", { category_id }, function(response) {
+                            let options = '<option value="">Select Package</option>';
+                            response.forEach(pkg => {
+                                options += `<option value="${pkg.id}" data-price="${pkg.price}">${pkg.title}</option>`;
+                            });
+                            $("#package_id").html(options);
+                        });
+                    }
+                });
+
+                // Load Amount when Package changes
+                $("#package_id").change(function() {
+                    let package_id = $(this).val();
+                    $("#amount").val('');
+                    $("#total").val(0);
+
+                    if (package_id) {
+                        $.get("{{ route('package.amount') }}", { package_id }, function(response) {
+                            $("#amount").val(response.amount);
+                            calculateTotalCost();
+                        });
+                    }
+                });
+
+                // Calculate total
+                function calculateTotalCost() {
+                    const amount = parseFloat($("#amount").val()) || 0;
+                    $("#total").val(amount.toFixed(2));
+                }
+            });
+        </script>
     </body>
 </html>

@@ -117,17 +117,18 @@ $(document).ready(function() {
     // Load Categories when Biller changes
     $("#biller_id").change(function() {
         let biller_id = $(this).val();
-        $("#category_id").html('<option value="">Loading...</option>');
+        $("#category_id").html('<option value="">Select type</option>');
         $("#package_id").html('<option value="">Select Package</option>');
         $("#amount").val('');
 
         if (biller_id) {
             $.get("{{ route('categories.load') }}", { biller_id }, function(response) {
-                let options = '<option value="">Select Category</option>';
+                let options = '<option value="">Select type</option>';
                 response.forEach(cat => {
                     options += `<option value="${cat.id}">${cat.title}</option>`;
                 });
                 $("#category_id").html(options);
+                console.log('yawwa');
             });
         }
     });
@@ -135,7 +136,7 @@ $(document).ready(function() {
     // Load Packages when Category changes
     $("#category_id").change(function() {
         let category_id = $(this).val();
-        $("#package_id").html('<option value="">Loading...</option>');
+        $("#package_id").html('<option value="">Select type</option>');
         $("#amount").val('');
 
         if (category_id) {
